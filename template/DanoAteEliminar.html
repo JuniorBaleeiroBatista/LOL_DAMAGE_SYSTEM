@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Dano</title>
+
+<link rel="stylesheet" href="../static/DanoAteEliminar.css">
+
+<!-- Fonte estilo LoL -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<div class="container">
+
+    <div class="frame-top"></div>
+
+    <h1>Calculadora de Dano</h1>
+    <p class="subtitle">
+        Simule quantos ataques são necessários para eliminar um inimigo.
+    </p>
+
+    <div class="inputs">
+
+        <div class="input-box">
+            <label>AD do campeão</label>
+            <input type="number" id="ad">
+        </div>
+
+        <div class="input-box">
+            <label>Chance de crítico (%)</label>
+            <input type="number" id="crit">
+        </div>
+
+        <div class="input-box">
+            <label>Penetração de armadura (%)</label>
+            <input type="number" id="pen">
+        </div>
+
+        <div class="input-box">
+            <label>Letalidade</label>
+            <input type="number" id="let">
+        </div>
+
+        <div class="input-box">
+            <label>Armadura inimiga</label>
+            <input type="number" id="armor">
+        </div>
+
+        <div class="input-box">
+            <label>Vida inimigo</label>
+            <input type="number" id="vida">
+        </div>
+
+    </div>
+
+    <button onclick="calcularDano()">
+        Calcular Dano
+    </button>
+
+    <div class="resultado" id="resultado"></div>
+
+</div>
+
+<script>
+function calcularDano() {
+
+    let ad = parseFloat(document.getElementById("ad").value);
+    let chanceCrit = parseFloat(document.getElementById("crit").value)/100;
+    let armorpen = parseFloat(document.getElementById("pen").value)/100;
+    let letalidade = parseFloat(document.getElementById("let").value);
+    let armor = parseFloat(document.getElementById("armor").value);
+    let vidaInimigo = parseFloat(document.getElementById("vida").value);
+
+    if (isNaN(ad) || isNaN(chanceCrit) || isNaN(armorpen) || isNaN(letalidade) || isNaN(armor) || isNaN(vidaInimigo)) {
+        alert("Preencha todos os campos corretamente!");
+        return;
+    }
+
+    let armorMenosPen = armor * (1 - armorpen);
+    let armorFinal = armorMenosPen - letalidade;
+
+    let danoPorAA = ad * (100 / (100 + armorFinal));
+    let danoCrit = danoPorAA * 2;
+
+    let vidaAtual = vidaInimigo;
+    let ataques = 0;
+    let crits = 0;
+
+    let log = "";
+
+    while (vidaAtual > 0) {
+
+        let random = Math.random();
+        let danoCausado = 0;
+
+        ataques++;
+
+        if (random < chanceCrit) {
+
+            danoCausado = danoCrit;
+            crits++;
+
+            log += `
+                <div class="log crit">
+                    ⚔️ Ataque ${ataques} causou CRÍTICO!
+                    <br>
+                    Dano: ${danoCausado.toFixed(2)}
+                </div>
+            `;
+
+        } else {
+
+            danoCausado = danoPorAA;
+
+            log += `
+                <div class="log">
+                    Ataque ${ataques} causou dano normal
+                    <br>
+                    Dano: ${danoCausado.toFixed(2)}
+                </div>
+            `;
+        }
+
+        vidaAtual -= danoCausado;
+
+        if (vidaAtual < 0) {
+            vidaAtual = 0;
+        }
+
+        log += `
+            <div class="vida">
+                Vida restante: ${vidaAtual.toFixed(2)}
+            </div>
+        `;
+    }
+
+    log += `
+        <div class="final">
+            Foram necessários
+            <span>${ataques}</span>
+            ataques para eliminar o inimigo.
+            <br>
+            Críticos: <span>${crits}</span>
+        </div>
+    `;
+
+    document.getElementById("resultado").innerHTML = log;
+}
+</script>
+
+</body>
+</html>
