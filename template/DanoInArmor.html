@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Dano</title>
+
+  <link rel="stylesheet" href="../static/DanoInArmor.css">
+
+  <!-- Fonte estilo LoL -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<div class="container">
+
+  <div class="frame-top"></div>
+
+  <h1>Calculadora de Dano</h1>
+
+  <p class="subtitle">
+    Simule ataques críticos e veja o dano causado no inimigo.
+  </p>
+
+  <div class="inputs">
+
+    <div class="input-box">
+      <label>AD</label>
+      <input type="number" id="ad">
+    </div>
+
+    <div class="input-box">
+      <label>Chance de crítico (%)</label>
+      <input type="number" id="crit">
+    </div>
+
+    <div class="input-box">
+      <label>Penetração (%)</label>
+      <input type="number" id="armorpen">
+    </div>
+
+    <div class="input-box">
+      <label>Letalidade</label>
+      <input type="number" id="letalidade">
+    </div>
+
+    <div class="input-box">
+      <label>Armadura do inimigo</label>
+      <input type="number" id="armor">
+    </div>
+
+  </div>
+
+  <button onclick="calcular()">
+    Calcular Dano
+  </button>
+
+  <div id="resultado" class="resultado"></div>
+
+</div>
+
+<script>
+function calcular() {
+
+  let ad = Number(document.getElementById("ad").value);
+  let chanceCrit = Number(document.getElementById("crit").value) / 100;
+  let armorpen = Number(document.getElementById("armorpen").value) / 100;
+  let letalidade = Number(document.getElementById("letalidade").value);
+  let armor = Number(document.getElementById("armor").value);
+
+  if (
+    isNaN(ad) ||
+    isNaN(chanceCrit) ||
+    isNaN(armorpen) ||
+    isNaN(letalidade) ||
+    isNaN(armor)
+  ) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  let crits = 0;
+  let resultadoTexto = "";
+
+  for (let i = 1; i <= 10; i++) {
+
+    let random = Math.random();
+
+    if (random < chanceCrit) {
+
+      resultadoTexto += `
+        <div class="log crit">
+          ⚔️ Ataque ${i} causou CRÍTICO
+        </div>
+      `;
+
+      crits++;
+
+    } else {
+
+      resultadoTexto += `
+        <div class="log">
+          Ataque ${i} causou dano normal
+        </div>
+      `;
+    }
+  }
+
+  let armorMenosPen = armor * (1 - armorpen);
+  let armorFinal = armorMenosPen - letalidade;
+
+  let danoPorAA = ad * (100 / (100 + armorFinal));
+
+  resultadoTexto += `
+    <div class="stats">
+      <p>Armadura após penetração:
+      <span>${armorMenosPen.toFixed(2)}</span></p>
+
+      <p>Armadura final:
+      <span>${armorFinal.toFixed(2)}</span></p>
+
+      <p>Dano por AA:
+      <span>${danoPorAA.toFixed(2)}</span></p>
+
+      <p>Total de críticos:
+      <span>${crits}</span></p>
+    </div>
+  `;
+
+  document.getElementById("resultado").innerHTML = resultadoTexto;
+}
+</script>
+
+</body>
+</html>
